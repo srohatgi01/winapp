@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:winapp/create_and_save_pdf.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
   runApp(MyApp());
 }
 
@@ -23,26 +26,20 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
-
+  
   @override
   Widget build(BuildContext context) {
+    database();
     return Scaffold(
-        // appBar: AppBar(title: const Text('MyHome Page')),
-        body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Image.asset("assets/bds-logo.png", width: 200),
-          ElevatedButton(
-            onPressed: () => createAndSavePdf(mockData),
-            child: const Text('Press to create pdf'),
-          ),
-        ],
-      ),
-    ));
+      body: Container(),
+    );
   }
-
   
+  void database() async {
+    var box = await Hive.openBox('testBox');
+    box.put('name', "Sarthak");
+    print(box.get('name'));
+  }
 
   List<Map> mockData = [
     {"id": 01, "desc": "Some Car Part", "amount": 3000},
