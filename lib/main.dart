@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:winapp/create_and_save_pdf.dart';
+import 'package:provider/provider.dart';
+import 'package:winapp/screens/browse.dart';
+import 'package:winapp/screens/inventory.dart';
+import 'package:winapp/screens/newclient.dart';
+import 'package:winapp/screens/newinvoice.dart';
+import 'package:winapp/widgets/bds-appbar.dart';
+import 'package:winapp/widgets/homepage-cards.dart';
+
+import 'data/drift_database.dart';
 
 void main() async {
-  await Hive.initFlutter();
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  //Run the app
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -13,32 +20,58 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        Provider<ClientDao>(create: (_) => MyDatabase().clientDao),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: MyHomePage(),
       ),
-      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
-    database();
     return Scaffold(
-      body: Container(),
+      appBar: const BdsAppBar(),
+      body: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: const [
+            HomePageCards(
+              title: "Inventory",
+              image: "assets/inventory.png",
+              widget: InventoryScreen(),
+            ),
+            HomePageCards(
+              title: "New Client",
+              image: "assets/newclient.png",
+              widget: NewClientScreen(),
+            ),
+            HomePageCards(
+              title: "Invoice",
+              image: "assets/invoice.png",
+              widget: NewInvoiceScreen(),
+            ),
+            HomePageCards(
+              title: "Browsing",
+              image: "assets/browsing.png",
+              widget: BrowseScreen(),
+            ),
+          ],
+        ),
+      ),
     );
-  }
-  
-  void database() async {
-    var box = await Hive.openBox('testBox');
-    box.put('name', "Sarthak");
-    print(box.get('name'));
   }
 
   List<Map> mockData = [
