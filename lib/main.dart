@@ -47,14 +47,14 @@ class MyHomePage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [
+          children: [
             HomePageCards(
               title: "Inventory",
               image: "assets/inventory.png",
               widget: InventoryScreen(),
             ),
             HomePageCards(
-              title: "New Client",
+              title: "Clients",
               image: "assets/newclient.png",
               widget: NewClientScreen(),
             ),
