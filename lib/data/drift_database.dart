@@ -102,7 +102,7 @@ class InventoryDao extends DatabaseAccessor<MyDatabase>
 
   Future<List<Inventorie>> getAllInventory() => select(inventories).get();
   Stream<List<Inventorie>> watchAllInventory() => select(inventories).watch();
-  Future insertInventory(Inventorie inventorie) =>
+  Future insertInventory(Insertable<Inventorie> inventorie) =>
       into(inventories).insert(inventorie);
   Future updateInventory(Inventorie inventorie) =>
       update(inventories).replace(inventorie);

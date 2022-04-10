@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<ClientDao>(create: (_) => MyDatabase().clientDao),
+        Provider<InventoryDao>(create: (_) => MyDatabase().inventoryDao),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

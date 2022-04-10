@@ -21,7 +21,6 @@ class NewClientScreen extends StatelessWidget {
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            // mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset("assets/newclient.png", width: 150),
               const SizedBox(height: 20),
@@ -91,10 +90,23 @@ class NewClientScreen extends StatelessWidget {
             child: ListView(
               shrinkWrap: true,
               children: [
+                const SizedBox(height: 30),
                 const Center(
                   child: Text("Existing Clients",
                       style:
                           TextStyle(fontSize: 30, fontWeight: FontWeight.w600)),
+                ),
+                const SizedBox(height: 30),
+                Container(
+                  decoration: BoxDecoration(color: Colors.grey.shade200),
+                  child: const ListTile(
+                    title: Text("Client Name",
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    leading: Text("ID",
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    trailing: Text("Email Address",
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
                 ),
                 StreamBuilder(
                   stream: database.watchAllClients(),
