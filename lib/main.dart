@@ -20,11 +20,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<ClientDao>(create: (_) => MyDatabase().clientDao),
-        Provider<InventoryDao>(create: (_) => MyDatabase().inventoryDao),
-      ],
+    return Provider(
+      create: (context) => MyDatabase(),
       child: MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
@@ -74,36 +71,4 @@ class MyHomePage extends StatelessWidget {
       ),
     );
   }
-
-  List<Map> mockData = [
-    {"id": 01, "desc": "Some Car Part", "amount": 3000},
-    {"id": 02, "desc": "Some Car Part", "amount": 3000},
-    {"id": 03, "desc": "Some Car Part", "amount": 3000},
-    {"id": 04, "desc": "Some Car Part", "amount": 3000},
-    {"id": 05, "desc": "Some Car Part", "amount": 3000},
-    {"id": 06, "desc": "Some Car Part", "amount": 3000},
-    {"id": 07, "desc": "Some Car Part", "amount": 3000},
-    {"id": 08, "desc": "Some Car Part", "amount": 3000},
-    {"id": 09, "desc": "Some Car Part", "amount": 3000},
-    {"id": 01, "desc": "Some Car Part", "amount": 3000},
-    {"id": 02, "desc": "Some Car Part", "amount": 3000},
-    {"id": 03, "desc": "Some Car Part", "amount": 3000},
-    {"id": 04, "desc": "Some Car Part", "amount": 3000},
-    {"id": 05, "desc": "Some Car Part", "amount": 3000},
-    {"id": 06, "desc": "Some Car Part", "amount": 3000},
-    {"id": 07, "desc": "Some Car Part", "amount": 3000},
-    {"id": 08, "desc": "Some Car Part", "amount": 3000},
-    {"id": 09, "desc": "Some Car Part", "amount": 3000},
-    {"id": 01, "desc": "Some Car Part", "amount": 3000},
-    {"id": 02, "desc": "Some Car Part", "amount": 3000},
-    {"id": 03, "desc": "Some Car Part", "amount": 3000},
-    {"id": 04, "desc": "Some Car Part", "amount": 3000},
-    {"id": 05, "desc": "Some Car Part", "amount": 3000},
-    {"id": 06, "desc": "Some Car Part", "amount": 3000},
-    {"id": 07, "desc": "Some Car Part", "amount": 3000},
-    {"id": 08, "desc": "Some Car Part", "amount": 3000},
-    {"id": 09, "desc": "Some Car Part", "amount": 3000},
-    {"id": 05, "desc": "Some Car Part", "amount": 3000},
-    {"id": 06, "desc": "Some Car Part", "amount": 3000},
-  ];
 }
