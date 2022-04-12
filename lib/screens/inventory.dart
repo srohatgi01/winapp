@@ -9,10 +9,14 @@ class InventoryScreen extends StatelessWidget {
   InventoryScreen({Key? key}) : super(key: key);
 
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _itemNameController = TextEditingController();
+  final TextEditingController _itemPriceController = TextEditingController();
+  final TextEditingController _itemQuantityController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    final database = Provider.of<InventoryDao>(context, listen: false);
+    final database = Provider.of<MyDatabase>(context, listen: false);
 
     return Scaffold(
         appBar: const BdsAppBar(),
@@ -48,14 +52,7 @@ class InventoryScreen extends StatelessWidget {
                   ],
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    const inventory = InventoriesCompanion(
-                        itemName: d.Value("Item Name"),
-                        itemPrice: d.Value("1232"),
-                        itemQuantity: d.Value(23));
-
-                    database.insertInventory(inventory);
-                  },
+                  onPressed: () => _addNewInventoryDialog(context, database),
                   child: Container(
                     // width: 270,
                     height: 50,
@@ -97,7 +94,7 @@ class InventoryScreen extends StatelessWidget {
               ],
             ),
             StreamBuilder(
-                stream: database.watchAllInventory(),
+                stream: database.inventoryDao.watchAllInventory(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.active &&
                       snapshot.hasData) {
@@ -114,19 +111,23 @@ class InventoryScreen extends StatelessWidget {
                               child: ListTile(
                                 leading: Text(
                                   inventory[index].id.toString(),
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 title: Text(
                                   inventory[index].itemName.toString(),
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 subtitle: Text(
                                   "Rs " + inventory[index].itemPrice.toString(),
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 trailing: Text(
                                   inventory[index].itemQuantity.toString(),
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
                                 ),
                               ),
                             ),
@@ -147,5 +148,105 @@ class InventoryScreen extends StatelessWidget {
                 })
           ],
         ));
+  }
+
+  Future<dynamic> _addNewInventoryDialog(
+      BuildContext context, MyDatabase database) {
+    return showDialog(
+        builder: (context) => Dialog(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 100, horizontal: 130),
+                child: Form(
+                  autovalidateMode: AutovalidateMode.always,
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text("Add Item to Inventory",
+                          style: TextStyle(fontSize: 30)),
+                      const SizedBox(height: 30),
+                      TextFormField(
+                        controller: _itemNameController,
+                        validator: _fieldsValidator,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter Item Name',
+                          constraints: BoxConstraints(maxWidth: 300),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            controller: _itemPriceController,
+                            validator: _numberFieldsValidator,
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Enter Item Price',
+                                constraints: BoxConstraints(maxWidth: 145)),
+                          ),
+                          const SizedBox(width: 10),
+                          TextFormField(
+                            controller: _itemQuantityController,
+                            validator: _numberFieldsValidator,
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Enter Quantity',
+                                constraints: BoxConstraints(maxWidth: 145)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        child: Container(
+                          width: 270,
+                          height: 50,
+                          alignment: Alignment.center,
+                          child: const Text('Add New Item',
+                              style: TextStyle(fontSize: 18)),
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            final inventory = InventoriesCompanion(
+                                itemName:
+                                    d.Value(_itemNameController.value.text),
+                                itemPrice:
+                                    d.Value(_itemPriceController.value.text),
+                                itemQuantity: d.Value(int.parse(
+                                    _itemQuantityController.value.text)));
+
+                            database.inventoryDao
+                                .insertInventory(inventory)
+                                .then((value) => {
+                                      _itemNameController.clear(),
+                                      _itemPriceController.clear(),
+                                      _itemQuantityController.clear(),
+                                      Navigator.pop(context),
+                                    });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        context: context);
+  }
+
+  String? _fieldsValidator(String? value) {
+    if (value!.isEmpty) return "Fields cannot be empty";
+    return null;
+  }
+
+  String? _numberFieldsValidator(String? value) {
+    if (value!.isEmpty)
+      return "Fields cannot be empty";
+    else if (double.tryParse(value) == null) return "Enter number";
+    return null;
   }
 }

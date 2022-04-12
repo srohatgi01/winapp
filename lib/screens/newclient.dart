@@ -13,7 +13,7 @@ class NewClientScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final database = Provider.of<ClientDao>(context, listen: false);
+    final database = Provider.of<MyDatabase>(context, listen: false);
     return Scaffold(
       appBar: const BdsAppBar(),
       body: Row(
@@ -64,13 +64,13 @@ class NewClientScreen extends StatelessWidget {
                       _nameController.text.isNotEmpty &&
                       _phoneController.text.isNotEmpty) {
                     final database =
-                        Provider.of<ClientDao>(context, listen: false);
+                        Provider.of<MyDatabase>(context, listen: false);
                     final client = ClientsCompanion(
                       name: d.Value(_nameController.text),
                       email: d.Value(_emailController.text),
                       phoneNumber: d.Value(_phoneController.text),
                     );
-                    database.insertClient(client).then((value) => {
+                    database.clientDao.insertClient(client).then((value) => {
                           _nameController.clear(),
                           _emailController.clear(),
                           _phoneController.clear(),
@@ -109,7 +109,7 @@ class NewClientScreen extends StatelessWidget {
                   ),
                 ),
                 StreamBuilder(
-                  stream: database.watchAllClients(),
+                  stream: database.clientDao.watchAllClients(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.active &&
                         snapshot.hasData) {
