@@ -5,19 +5,37 @@ import 'package:winapp/widgets/bds-appbar.dart';
 
 import '../data/drift_database.dart';
 
-class InventoryScreen extends StatelessWidget {
-  InventoryScreen({Key? key}) : super(key: key);
+class InventoryScreen extends StatefulWidget {
+  const InventoryScreen({Key? key}) : super(key: key);
 
+  @override
+  State<InventoryScreen> createState() => _InventoryScreenState();
+}
+
+class _InventoryScreenState extends State<InventoryScreen> {
   final TextEditingController _searchController = TextEditingController();
+
   final TextEditingController _itemNameController = TextEditingController();
+
   final TextEditingController _itemPriceController = TextEditingController();
+
   final TextEditingController _itemQuantityController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
+
+  late final database;
+  late Stream<List> stream;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    database = Provider.of<MyDatabase>(context, listen: false);
+    stream = database.inventoryDao.watchAllInventory();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final database = Provider.of<MyDatabase>(context, listen: false);
-
     return Scaffold(
         appBar: const BdsAppBar(),
         body: Column(
@@ -30,31 +48,45 @@ class InventoryScreen extends StatelessWidget {
                   children: [
                     TextField(
                       controller: _searchController,
+                      onChanged: (value) {
+                        setState(() {
+                          stream = database.inventoryDao.watchSearchByItemName(
+                              _searchController.value.text);
+                        });
+                      },
                       decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.search),
                         border: OutlineInputBorder(),
                         hintText: 'Search Inventory',
                         constraints: BoxConstraints(maxWidth: 600),
                       ),
                     ),
                     const SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Container(
-                        // width: 270,
-                        height: 50,
-                        alignment: Alignment.center,
-                        child: const Text(
-                          "Search",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
+                    // Search Button
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     setState(() {
+                    //       stream = database.inventoryDao.watchSearchByItemName(
+                    //           _searchController.value.text);
+                    //     });
+                    //   },
+                    //   child: Container(
+                    //     // width: 270,
+                    //     height: 50,
+                    //     alignment: Alignment.center,
+                    //     child: const Text(
+                    //       "Search",
+                    //       style: TextStyle(fontSize: 18),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
+                // Add new item button
                 ElevatedButton(
                   onPressed: () => _addNewInventoryDialog(context, database),
                   child: Container(
-                    // width: 270,
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
                     height: 50,
                     alignment: Alignment.center,
                     child: const Text(
@@ -66,6 +98,7 @@ class InventoryScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
+            // Inventory List Tile Heading
             Row(
               children: [
                 Container(
@@ -93,13 +126,17 @@ class InventoryScreen extends StatelessWidget {
                 )
               ],
             ),
+            // Inventory List View builder
             StreamBuilder(
-                stream: database.inventoryDao.watchAllInventory(),
+                stream: stream,
+                initialData: [database.inventoryDao.watchAllInventory()],
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.active &&
                       snapshot.hasData) {
+                    // print(snapshot.data.toString());
                     List<Inventorie> inventory =
                         snapshot.data as List<Inventorie>;
+                    // print(inventory);
                     return Expanded(
                       child: ListView.builder(
                         shrinkWrap: true,
@@ -133,7 +170,7 @@ class InventoryScreen extends StatelessWidget {
                             ),
                             IconButton(
                                 onPressed: () {},
-                                icon: Icon(
+                                icon: const Icon(
                                   Icons.edit,
                                   size: 18,
                                 ))
