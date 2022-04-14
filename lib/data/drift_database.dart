@@ -104,15 +104,12 @@ class InventoryDao extends DatabaseAccessor<MyDatabase>
   Stream<List<Inventorie>> watchAllInventory() => select(inventories).watch();
   Future insertInventory(Insertable<Inventorie> inventorie) =>
       into(inventories).insert(inventorie);
-  Future updateInventory(Inventorie inventorie) =>
-      update(inventories).replace(inventorie);
+  Future updateInventory(Insertable<Inventorie> inventorie) =>
+      (update(inventories).replace(inventorie));
+
   Stream<List<Inventorie>> watchSearchByItemName(var searchWord) =>
-      // (select(inventories)..where((tbl) => tbl.itemName.equals(searchWord)))
       (select(inventories)..where((tbl) => tbl.itemName.contains(searchWord)))
           .watch();
-  // Stream<List<QueryRow>> watchSearchByItemName(String searchWord) =>
-  //     customSelect("SELECT * FROM inventories WHERE item_name = '?'",
-  //         variables: [Variable(searchWord)]).watch();
 }
 
 // InvoiceDetail Dao

@@ -15,11 +15,16 @@ class InventoryScreen extends StatefulWidget {
 class _InventoryScreenState extends State<InventoryScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  final TextEditingController _itemNameController = TextEditingController();
-
-  final TextEditingController _itemPriceController = TextEditingController();
-
-  final TextEditingController _itemQuantityController = TextEditingController();
+  final TextEditingController _additemNameController = TextEditingController();
+  final TextEditingController _additemPriceController = TextEditingController();
+  final TextEditingController _additemQuantityController =
+      TextEditingController();
+  final TextEditingController _updateitemNameController =
+      TextEditingController();
+  final TextEditingController _updateitemPriceController =
+      TextEditingController();
+  final TextEditingController _updateitemQuantityController =
+      TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -169,7 +174,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                               ),
                             ),
                             IconButton(
-                                onPressed: () {},
+                                onPressed: () => _updateInventoryDialog(
+                                    context, database, inventory[index]),
                                 icon: const Icon(
                                   Icons.edit,
                                   size: 18,
@@ -204,7 +210,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           style: TextStyle(fontSize: 30)),
                       const SizedBox(height: 30),
                       TextFormField(
-                        controller: _itemNameController,
+                        controller: _additemNameController,
                         validator: _fieldsValidator,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -218,7 +224,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           TextFormField(
-                            controller: _itemPriceController,
+                            controller: _additemPriceController,
                             validator: _numberFieldsValidator,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -227,7 +233,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           ),
                           const SizedBox(width: 10),
                           TextFormField(
-                            controller: _itemQuantityController,
+                            controller: _additemQuantityController,
                             validator: _numberFieldsValidator,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(),
@@ -249,18 +255,126 @@ class _InventoryScreenState extends State<InventoryScreen> {
                           if (_formKey.currentState!.validate()) {
                             final inventory = InventoriesCompanion(
                                 itemName:
-                                    d.Value(_itemNameController.value.text),
+                                    d.Value(_additemNameController.value.text),
                                 itemPrice:
-                                    d.Value(_itemPriceController.value.text),
+                                    d.Value(_additemPriceController.value.text),
                                 itemQuantity: d.Value(int.parse(
-                                    _itemQuantityController.value.text)));
+                                    _additemQuantityController.value.text)));
 
                             database.inventoryDao
                                 .insertInventory(inventory)
                                 .then((value) => {
-                                      _itemNameController.clear(),
-                                      _itemPriceController.clear(),
-                                      _itemQuantityController.clear(),
+                                      _additemNameController.clear(),
+                                      _additemPriceController.clear(),
+                                      _additemQuantityController.clear(),
+                                      Navigator.pop(context),
+                                    });
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        context: context);
+  }
+
+  Future<dynamic> _updateInventoryDialog(
+      BuildContext context, MyDatabase database, Inventorie inventorie) {
+    // assigning values to the fields in update dialog
+    _updateitemNameController.text = inventorie.itemName;
+    _updateitemPriceController.text = inventorie.itemPrice;
+    _updateitemQuantityController.text = inventorie.itemQuantity.toString();
+
+    // Returning Dialog Box
+    return showDialog(
+        builder: (context) => Dialog(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 100, horizontal: 130),
+                child: Form(
+                  autovalidateMode: AutovalidateMode.always,
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text("Update Item", style: TextStyle(fontSize: 30)),
+                      const SizedBox(height: 30),
+                      TextFormField(
+                        // initialValue: inventorie.itemName,
+                        controller: _updateitemNameController,
+                        validator: _fieldsValidator,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter Item Name',
+                          constraints: BoxConstraints(maxWidth: 300),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            // initialValue: inventorie.itemPrice,
+                            controller: _updateitemPriceController,
+                            validator: _numberFieldsValidator,
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Enter Item Price',
+                                constraints: BoxConstraints(maxWidth: 145)),
+                          ),
+                          const SizedBox(width: 10),
+                          TextFormField(
+                            // initialValue: inventorie.itemQuantity.toString(),
+                            controller: _updateitemQuantityController,
+                            validator: _numberFieldsValidator,
+                            decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Enter Quantity',
+                                constraints: BoxConstraints(maxWidth: 145)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        child: Container(
+                          width: 270,
+                          height: 50,
+                          alignment: Alignment.center,
+                          child: const Text('Update Item',
+                              style: TextStyle(fontSize: 18)),
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            // final inventory = InventoriesCompanion(
+                            //   itemName:
+                            //       d.Value(_updateitemNameController.value.text),
+                            //   itemPrice: d.Value(
+                            //       _updateitemPriceController.value.text),
+                            //   itemQuantity: d.Value(
+                            //     int.parse(
+                            //         _updateitemQuantityController.value.text),
+                            //   ),
+                            // );
+
+                            // print(inventory);
+
+                            database.inventoryDao
+                                .updateInventory(inventorie.copyWith(
+                                    itemName:
+                                        _updateitemNameController.value.text,
+                                    itemPrice:
+                                        _updateitemPriceController.value.text,
+                                    itemQuantity: int.parse(
+                                        _updateitemQuantityController
+                                            .value.text)))
+                                .then((value) => {
+                                      _additemNameController.clear(),
+                                      _additemPriceController.clear(),
+                                      _additemQuantityController.clear(),
                                       Navigator.pop(context),
                                     });
                           }
