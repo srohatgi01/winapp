@@ -349,19 +349,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
                         ),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            // final inventory = InventoriesCompanion(
-                            //   itemName:
-                            //       d.Value(_updateitemNameController.value.text),
-                            //   itemPrice: d.Value(
-                            //       _updateitemPriceController.value.text),
-                            //   itemQuantity: d.Value(
-                            //     int.parse(
-                            //         _updateitemQuantityController.value.text),
-                            //   ),
-                            // );
-
-                            // print(inventory);
-
                             database.inventoryDao
                                 .updateInventory(inventorie.copyWith(
                                     itemName:
