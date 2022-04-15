@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart';
 import 'package:winapp/create_and_save_pdf.dart';
 import 'package:winapp/data/drift_database.dart';
+import 'package:winapp/data/models/invoice_items.dart';
 import 'package:winapp/widgets/bds-appbar.dart';
 
 class NewInvoiceScreen extends StatefulWidget {
@@ -17,11 +18,10 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
 
   List<Client> clients = [];
   Client? _selectedClient;
+  List<InvoiceItems> _selectedInventories = [];
 
   late final database;
   late Stream<List> stream;
-
-  List<Inventorie> _selectedInventories = [];
 
   @override
   void initState() {
@@ -36,13 +36,14 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
     return Scaffold(
       appBar: const BdsAppBar(),
       body: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: 300,
+                width: 200,
                 child: TextFormField(
                   controller: _clientFieldController,
                   readOnly: true,
@@ -55,29 +56,34 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
               ),
               ElevatedButton(
                 child: Container(
-                  width: 270,
+                  width: 170,
                   height: 50,
                   alignment: Alignment.center,
                   child: const Text('Add Items from Inventory',
+                      textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 18)),
                 ),
-                onPressed: null,
+                onPressed: () {
+                  // print(_selectedInventories);
+                  // print(_selectedInventories.map((e) => e.price));
+                  // print(_selectedInventories.map((e) => e.quantity));
+                },
               ),
-              Container(
-                width: 300,
-                child: ListView.builder(
-                    controller: ScrollController(),
-                    shrinkWrap: true,
-                    itemCount: _selectedInventories.length,
-                    itemBuilder: (context, index) =>
-                        Text(_selectedInventories[index].itemName)),
-              )
             ],
           ),
-          Container(
-            width: 500,
+
+          // Select Items from Inventory Column
+          SizedBox(
+            width: 400,
             child: Column(
               children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text(
+                    "Select Inventory to Add",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+                  ),
+                ),
                 TextField(
                   controller: _searchController,
                   onChanged: (value) {
@@ -90,7 +96,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                     suffixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(),
                     hintText: 'Search Inventory',
-                    constraints: BoxConstraints(maxWidth: 600),
+                    constraints: BoxConstraints(maxWidth: 400),
                   ),
                 ),
                 StreamBuilder(
@@ -108,13 +114,9 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                             physics: const ScrollPhysics(),
                             itemBuilder: (context, index) => Row(
                               children: [
-                                Container(
-                                  width: 500,
+                                SizedBox(
+                                  width: 400,
                                   child: ListTile(
-                                    onTap: () {
-                                      _selectedInventories
-                                          .add(inventory[index]);
-                                    },
                                     leading: Text(
                                       inventory[index].id.toString(),
                                       style: const TextStyle(
@@ -132,19 +134,25 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                                           fontWeight: FontWeight.w500),
                                     ),
                                     trailing: Checkbox(
-                                        key: Key(index.toString()),
-                                        value: _selectedInventories
-                                                .contains(inventory[index])
+                                        value: _selectedInventories.contains(
+                                                InvoiceItems(
+                                                    inventorie:
+                                                        inventory[index]))
                                             ? true
                                             : false,
                                         onChanged: (value) {
                                           setState(() {
                                             if (value == true) {
-                                              _selectedInventories
-                                                  .add(inventory[index]);
+                                              var i = InvoiceItems(
+                                                  inventorie: inventory[index]);
+                                              i.price = double.parse(
+                                                  inventory[index].itemPrice);
+                                              _selectedInventories.add(i);
                                             } else if (value == false) {
-                                              _selectedInventories
-                                                  .remove(inventory[index]);
+                                              _selectedInventories.remove(
+                                                  InvoiceItems(
+                                                      inventorie:
+                                                          inventory[index]));
                                             }
                                           });
                                         }),
@@ -159,6 +167,95 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                         return const Text("Something went wrong");
                       }
                     })
+              ],
+            ),
+          ),
+          // Selected Services List
+          SizedBox(
+            width: 450,
+            child: ListView(
+              children: [
+                Container(
+                  width: 300,
+                  color: Colors.grey.shade300,
+                  child: ListTile(
+                    title: Text("Item Name"),
+                    subtitle: Text("Item Price"),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("New Price"),
+                        SizedBox(width: 30),
+                        Text("Quantity"),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 450,
+                  child: ListView.builder(
+                    controller: ScrollController(),
+                    shrinkWrap: true,
+                    itemCount: _selectedInventories.length,
+                    itemBuilder: (context, index) => ListTile(
+                      title:
+                          Text(_selectedInventories[index].inventorie.itemName),
+                      subtitle: Text("Rs " +
+                          _selectedInventories[index].inventorie.itemPrice),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // For Price
+                          SizedBox(
+                              width: 50,
+                              child: TextFormField(
+                                  initialValue: _selectedInventories[index]
+                                      .inventorie
+                                      .itemPrice,
+                                  textAlign: TextAlign.center,
+                                  onChanged: (value) {
+                                    if (value.length > 1) {
+                                      if (double.tryParse(value) != null) {
+                                        if (int.parse(value) > 1) {
+                                          _selectedInventories[index].price =
+                                              double.parse(value);
+                                        }
+                                      }
+                                    }
+                                  },
+                                  autovalidateMode: AutovalidateMode.always,
+                                  validator: (value) {
+                                    if (double.tryParse(value!) == null) {
+                                      return "Invalid";
+                                    }
+                                  })),
+                          SizedBox(width: 30),
+                          // For Quantity
+                          SizedBox(
+                              width: 50,
+                              child: TextFormField(
+                                  textAlign: TextAlign.center,
+                                  onChanged: (value) {
+                                    if (value.length > 1) {
+                                      if (double.tryParse(value) != null) {
+                                        if (int.parse(value) > 1) {
+                                          _selectedInventories[index].quantity =
+                                              int.parse(value);
+                                        }
+                                      }
+                                    }
+                                  },
+                                  autovalidateMode: AutovalidateMode.always,
+                                  validator: (value) {
+                                    if (double.tryParse(value!) == null) {
+                                      return "Invalid";
+                                    }
+                                  })),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

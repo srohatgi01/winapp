@@ -29,6 +29,7 @@ environment:
 dependencies:
   cupertino_icons: ^1.0.2
   drift: ^1.5.0
+  equatable: ^2.0.3
   flutter:
     sdk: flutter
   msix: ^3.5.1
@@ -88,3 +89,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+msix_config:
+  display_name: BDS
+  publisher_display_name: Sarthak
+  identity_name: MyCompany.MySuite.MyApp
+  msix_version: 1.0.0.1
