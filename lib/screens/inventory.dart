@@ -162,7 +162,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
                                       fontWeight: FontWeight.w500),
                                 ),
                                 subtitle: Text(
-                                  "Rs " + inventory[index].itemPrice.toString(),
+                                  "USD " +
+                                      inventory[index].itemPrice.toString(),
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w500),
                                 ),

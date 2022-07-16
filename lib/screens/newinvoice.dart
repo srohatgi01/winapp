@@ -6,7 +6,7 @@ import 'package:winapp/data/models/invoice_items.dart';
 import 'package:winapp/widgets/bds-appbar.dart';
 
 class NewInvoiceScreen extends StatefulWidget {
-  NewInvoiceScreen({Key? key}) : super(key: key);
+  const NewInvoiceScreen({Key? key}) : super(key: key);
 
   @override
   State<NewInvoiceScreen> createState() => _NewInvoiceScreenState();
@@ -18,7 +18,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
 
   List<Client> clients = [];
   Client? _selectedClient;
-  List<InvoiceItems> _selectedInventories = [];
+  final List<InvoiceItems> _selectedInventories = [];
 
   late final database;
   late Stream<List> stream;
@@ -38,45 +38,24 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
       body: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 200,
-                child: TextFormField(
-                  controller: _clientFieldController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    hintText: 'Select a Client',
-                    border: OutlineInputBorder(),
-                  ),
-                  onTap: () => _selectClientDialog(context),
-                ),
-              ),
-              ElevatedButton(
-                child: Container(
-                  width: 170,
-                  height: 50,
-                  alignment: Alignment.center,
-                  child: const Text('Add Items from Inventory',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18)),
-                ),
-                onPressed: () {
-                  // print(_selectedInventories);
-                  // print(_selectedInventories.map((e) => e.price));
-                  // print(_selectedInventories.map((e) => e.quantity));
-                },
-              ),
-            ],
-          ),
-
           // Select Items from Inventory Column
           SizedBox(
             width: 400,
             child: Column(
               children: [
+                Container(
+                  padding: const EdgeInsets.only(top: 30),
+                  // width: 200,
+                  child: TextFormField(
+                    controller: _clientFieldController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      hintText: 'Select a Client',
+                      border: OutlineInputBorder(),
+                    ),
+                    onTap: () => _selectClientDialog(context),
+                  ),
+                ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.0),
                   child: Text(
@@ -128,7 +107,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                                           fontWeight: FontWeight.w500),
                                     ),
                                     subtitle: Text(
-                                      "Rs " +
+                                      "USD " +
                                           inventory[index].itemPrice.toString(),
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w500),
@@ -200,7 +179,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                     itemBuilder: (context, index) => ListTile(
                       title:
                           Text(_selectedInventories[index].inventorie.itemName),
-                      subtitle: Text("Rs " +
+                      subtitle: Text("USD " +
                           _selectedInventories[index].inventorie.itemPrice),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -234,13 +213,17 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                           SizedBox(
                               width: 50,
                               child: TextFormField(
+                                  initialValue: '0',
                                   textAlign: TextAlign.center,
                                   onChanged: (value) {
-                                    if (value.length > 1) {
+                                    if (value.length > 0) {
                                       if (double.tryParse(value) != null) {
-                                        if (int.parse(value) > 1) {
+                                        if (int.parse(value) > 0) {
                                           _selectedInventories[index].quantity =
                                               int.parse(value);
+
+                                          print(_selectedInventories[index]
+                                              .quantity);
                                         }
                                       }
                                     }
@@ -258,6 +241,42 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                 ),
               ],
             ),
+          ),
+          // Column for selecting client and generating invoice button
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              //Button to generate invoice
+              ElevatedButton(
+                child: Container(
+                  width: 170,
+                  height: 50,
+                  alignment: Alignment.center,
+                  child: const Text('Generate Invoice',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18)),
+                ),
+                onPressed: () {
+                  if (_selectedInventories.isEmpty || _selectedClient == null) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AlertDialog(
+                        title: Text(
+                            'Select Client and Inventories before generating Invoice.'),
+                      ),
+                    );
+                  } else {
+                    createAndSavePdf(_selectedInventories, _selectedClient!);
+                    showDialog(
+                        context: context,
+                        builder: (context) => const AlertDialog(
+                              title: Text("Invoice Generated Successfully."),
+                            ));
+                  }
+                },
+              ),
+            ],
           ),
         ],
       ),

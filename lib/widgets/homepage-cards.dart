@@ -36,13 +36,13 @@ class HomePageCards extends StatelessWidget {
             ), //BoxShadow
             BoxShadow(
               color: Colors.white,
-              offset: const Offset(0.0, 0.0),
+              offset: Offset(0.0, 0.0),
               blurRadius: 0.0,
               spreadRadius: 0.0,
             ), //BoxShadow
           ],
         ),
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
