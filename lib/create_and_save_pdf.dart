@@ -1,14 +1,19 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:winapp/data/models/invoice_items.dart';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
 
 import 'data/drift_database.dart';
 
-void createAndSavePdf(List<InvoiceItems> itemData, Client client) async {
+void createAndSavePdf(List<InvoiceItems> itemData, Client client,
+    {context}) async {
   //Initialize HiveDB
   await Hive.initFlutter();
   var sequence = await Hive.openBox('sequences');
@@ -26,6 +31,8 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client) async {
     sequence.put('invoice_no', invoiceNum);
     sequence.put('fiche_no', invoiceNum);
   }
+
+  sequence.close();
 
   // Date Formatting
   List<String> dateElements =
@@ -47,10 +54,20 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client) async {
   total = subtotal + tax;
 
   print("Button Pressed");
-  final pdf = pw.Document();
+  var pdf = pw.Document();
+
+  final ByteData bytes = await rootBundle.load('assets/bds-logo.jpeg');
+  final Uint8List list = bytes.buffer.asUint8List();
+
+  // final logo = PdfImage.file(
+  //   pdf.document,
+  //   bytes: list,
+  // );
 
   final logo = pw.MemoryImage(
-    File('assets/bds-logo.png').readAsBytesSync(),
+    // File('assets/bds-logo.jpeg').readAsBytesSync(),
+    list,
+    orientation: PdfImageOrientation.leftTop,
   );
 
   pdf.addPage(
@@ -64,6 +81,7 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client) async {
               pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
+                    // pw.Image(logo, width: 80),
                     pw.Image(logo, width: 80),
                     pw.Text('INVOICE', style: const pw.TextStyle(fontSize: 30)),
                     pw.Column(

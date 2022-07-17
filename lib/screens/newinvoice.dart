@@ -267,7 +267,8 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                       ),
                     );
                   } else {
-                    createAndSavePdf(_selectedInventories, _selectedClient!);
+                    createAndSavePdf(_selectedInventories, _selectedClient!,
+                        context: context);
                     showDialog(
                         context: context,
                         builder: (context) => const AlertDialog(

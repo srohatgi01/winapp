@@ -37,7 +37,7 @@ dependencies:
   msix: ^3.6.2
   path: null
   path_provider: ^2.0.9
-  pdf: ^3.7.3
+  pdf: ^3.8.1
   provider: ^6.0.2
   sqflite_common_ffi: ^2.1.0+2
   sqlite3_flutter_libs: null
@@ -91,16 +91,16 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+msix_config:
+  msix_version: 2.2.1.0
+  display_name: BDS
+  #   # app_installer: #<-- app installer configuration
+  #   #   publish_folder_path: c:\Users\Sarthak\Desktop\
+  #   # publisher_display_name: Sarthak
+  #   # identity_name: MyCompany.MySuite.MyApp
+  #   # install_certificate: false
+  #   # certificate_path: C:\Users\Sarthak\Downloads\test_certificate.pfx
+  #   # certificate_password: 1234
+  logo_path: "D:\\winapp\\assets\\logo.png"
 
-# msix_config:
-#   display_name: BDS
-#   # app_installer: #<-- app installer configuration
-#   #   publish_folder_path: c:\Users\Sarthak\Desktop\
-#   # publisher_display_name: Sarthak
-#   # identity_name: MyCompany.MySuite.MyApp
-#   # install_certificate: false
-#   msix_version: 1.0.1.0
-#   # certificate_path: C:\Users\Sarthak\Downloads\test_certificate.pfx
-#   # certificate_password: 1234
-#   logo_path: "D:\\winapp\\assets\\logo.png"
 #   # publisher: CN=BF212345-5644-46DF-8668-014043C1B138
