@@ -1,9 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -13,22 +10,28 @@ import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'data/drift_database.dart';
 
 void createAndSavePdf(List<InvoiceItems> itemData, Client client,
-    {context}) async {
+    {context, required bool showTax, required bool isInvoice}) async {
   //Initialize HiveDB
   await Hive.initFlutter();
   var sequence = await Hive.openBox('sequences');
   if (sequence.get('invoice_no') == null) sequence.put('invoice_no', 0);
   if (sequence.get('fiche_no') == null) sequence.put('fiche_no', 0);
+  if (sequence.get('performa_no') == null) sequence.put('performa_no', 0);
 
-  int ficheNum = 0, invoiceNum = 0;
+  int ficheNum = 0, invoiceNum = 0, performaNum = 0;
 
   if ((sequence.get('fiche_no') != null) &&
-      (sequence.get('invoice_no') != null)) {
+      (sequence.get('invoice_no') != null) &&
+      (sequence.get('performa_no') != null)) {
     ficheNum = sequence.get('fiche_no');
     invoiceNum = sequence.get('fiche_no');
+    performaNum = sequence.get('performa_no');
     ficheNum++;
     invoiceNum++;
-    sequence.put('invoice_no', invoiceNum);
+    performaNum++;
+    isInvoice
+        ? sequence.put('invoice_no', invoiceNum)
+        : sequence.put('performa_no', performaNum);
     sequence.put('fiche_no', invoiceNum);
   }
 
@@ -82,8 +85,9 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client,
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     // pw.Image(logo, width: 80),
-                    pw.Image(logo, width: 80),
-                    pw.Text('INVOICE', style: const pw.TextStyle(fontSize: 30)),
+                    pw.Image(logo, width: 100),
+                    pw.Text(isInvoice ? 'INVOICE' : 'PERFORMA',
+                        style: const pw.TextStyle(fontSize: 30)),
                     pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.end,
                         children: [
@@ -96,8 +100,7 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client,
                           // pw.Text("Pin Code"),
                         ])
                   ]),
-              pw.Text(
-                  "License Number: CD/LSH/RCCM22-B-01913,IF-NAT 05-F4300-N03248T"),
+              pw.Text("CD/LSH/RCCM 22-B-01913, ID-NAT 05-F4300-N03248T"),
               pw.SizedBox(height: 10),
               pw.Divider(),
               pw.SizedBox(height: 20),
@@ -122,15 +125,18 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client,
                       pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.end,
                           children: [
-                            pw.Text("Invoice#"),
+                            pw.Text(isInvoice ? "Invoice#" : "Performa#"),
                             pw.Text("Fiche No#"),
-                            pw.Text("Invoice Date"),
+                            pw.Text(
+                                isInvoice ? "Invoice Date" : "Performa Date"),
                           ]),
                       pw.SizedBox(width: 20),
                       pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            pw.Text("BDS-$invoiceNum"),
+                            pw.Text(isInvoice
+                                ? "BDS-$invoiceNum"
+                                : "BDS-$performaNum"),
                             pw.Text("$ficheNum"),
                             pw.Text(date)
                           ]),
@@ -242,19 +248,22 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client,
                 ),
               ),
               pw.SizedBox(height: 4),
-              pw.Container(
-                alignment: pw.Alignment.centerRight,
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.end,
-                  children: [
-                    pw.Text("Tax@$taxper%",
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.SizedBox(width: 30),
-                    pw.Text("USD $tax"),
-                    pw.SizedBox(width: 8),
-                  ],
-                ),
-              ),
+              showTax
+                  ? pw.Container(
+                      alignment: pw.Alignment.centerRight,
+                      child: pw.Row(
+                        mainAxisAlignment: pw.MainAxisAlignment.end,
+                        children: [
+                          pw.Text("Tax@$taxper%",
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          pw.SizedBox(width: 30),
+                          pw.Text("USD $tax"),
+                          pw.SizedBox(width: 8),
+                        ],
+                      ),
+                    )
+                  : pw.Container(),
               pw.SizedBox(height: 4),
               pw.Divider(),
               pw.Container(
@@ -265,7 +274,7 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client,
                     pw.Text("Total",
                         style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                     pw.SizedBox(width: 30),
-                    pw.Text("USD $total"),
+                    showTax ? pw.Text("USD $total") : pw.Text("USD $subtotal"),
                     pw.SizedBox(width: 8),
                   ],
                 ),
@@ -280,6 +289,7 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client,
 
   // Saving the file
   final output = await getApplicationDocumentsDirectory();
-  final file = File("${output.path}/${client.name}.pdf");
+  final file = File(
+      "${output.path}/${client.name} - ${isInvoice ? "invoice" : "performa"}.pdf");
   await file.writeAsBytes(await pdf.save());
 }

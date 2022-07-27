@@ -15,6 +15,7 @@ class NewInvoiceScreen extends StatefulWidget {
 class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
   final TextEditingController _clientFieldController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
+  bool showTax = true;
 
   List<Client> clients = [];
   Client? _selectedClient;
@@ -208,7 +209,7 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                                       return "Invalid";
                                     }
                                   })),
-                          SizedBox(width: 30),
+                          const SizedBox(width: 30),
                           // For Quantity
                           SizedBox(
                               width: 50,
@@ -247,6 +248,20 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Row(
+                children: [
+                  const Text("Include Tax"),
+                  Checkbox(
+                      value: showTax,
+                      onChanged: (value) => {
+                            showTax = value!,
+                            setState(
+                              () {},
+                            )
+                          }),
+                ],
+              ),
+              const SizedBox(height: 30),
               //Button to generate invoice
               ElevatedButton(
                 child: Container(
@@ -268,11 +283,42 @@ class _NewInvoiceScreenState extends State<NewInvoiceScreen> {
                     );
                   } else {
                     createAndSavePdf(_selectedInventories, _selectedClient!,
-                        context: context);
+                        context: context, showTax: showTax, isInvoice: true);
                     showDialog(
                         context: context,
                         builder: (context) => const AlertDialog(
                               title: Text("Invoice Generated Successfully."),
+                            ));
+                  }
+                },
+              ),
+              const SizedBox(height: 30),
+              //Button to generate performa
+              ElevatedButton(
+                child: Container(
+                  width: 170,
+                  height: 50,
+                  alignment: Alignment.center,
+                  child: const Text('Generate Performa',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18)),
+                ),
+                onPressed: () {
+                  if (_selectedInventories.isEmpty || _selectedClient == null) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AlertDialog(
+                        title: Text(
+                            'Select Client and Inventories before generating Performa.'),
+                      ),
+                    );
+                  } else {
+                    createAndSavePdf(_selectedInventories, _selectedClient!,
+                        context: context, showTax: showTax, isInvoice: false);
+                    showDialog(
+                        context: context,
+                        builder: (context) => const AlertDialog(
+                              title: Text("Performa Generated Successfully."),
                             ));
                   }
                 },
