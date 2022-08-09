@@ -281,7 +281,24 @@ void createAndSavePdf(List<InvoiceItems> itemData, Client client,
               ),
               pw.Divider(),
             ],
-          )
+          ),
+          pw.Align(
+            alignment: pw.Alignment.centerLeft,
+            child: pw.Text("NOTE:",
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          ),
+          pw.Container(
+            margin: const pw.EdgeInsets.only(left: 16),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text("- START BEFORE / Avant Démarrer"),
+                pw.Text("- CLEAN THE DIESEL TANK / Nettoyer le Réservoir"),
+                pw.Text(
+                    "- CHANGE THE DIESEL FILTRE / Changer le Filtre Diesel"),
+              ],
+            ),
+          ),
         ]; // Center
       },
     ),
